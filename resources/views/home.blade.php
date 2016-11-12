@@ -55,7 +55,7 @@
           <div class="form-group">
             <label for="url" class="col-sm-4 control-label">URL to Shorten: </label>
             <div class="col-sm-8">
-              <input type="text" class="form-control" name="url" id="url" placeholder="http://google.com">
+              <input type="text" class="form-control" name="url" id="url" placeholder="https://google.com">
             </div>
           </div>
           <div class="form-group">
