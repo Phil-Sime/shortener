@@ -77,23 +77,38 @@ class UrlController extends Controller
     public function store(CreateUrlRequest $request)
     {
         $statusMessage = "";
-        $remoteIp  = $request->ip();
-        $urlToShorten = $request->url;
-        $desriedTag   = $request->desired_id;
-        $gResponse    = $request['g-recaptcha-response'];
+        $remoteIp      = $request->ip();
+        $urlToShorten  = $request->url;
+        $tag           = $request->desired_id ? $request->desired_id : $this->generateRandomTag();
+        $gResponse     = $request['g-recaptcha-response'];
 
         if( $this->captchaCheck($gResponse, $remoteIp) ) {
             $url = new URL;
-            $url->tag = $desriedTag;
+            $url->tag = $tag;
             $url->created_by_ip = $remoteIp;
             $url->url = $urlToShorten;
             $url->save();
-            $statusMessage = "Created your URL.  <a href=\"http://mutiny.co/$desriedTag\">mutiny.co/$desriedTag</a>";
+            $statusMessage = "Created your URL.  <a href=\"http://mutiny.co/$tag\">mutiny.co/$tag</a>";
         } else {
             $statusMessage = "Failed reCAPTCHA!";
         }
 
         return redirect('/')->with('status', $statusMessage);
+    }
+
+    /**
+     * Generate a random tag to be used in the 
+     * shortened URL.
+     *
+     * @return $randomTag
+     */
+    private function generateRandomTag() {
+        $randomTag = '';
+        // Loop until $randomTag is not empty and not an existing tag
+        while ($randomTag == '' || URL::where('tag', $randomTag)->count() != 0) {
+            $randomTag = substr(str_shuffle(MD5(microtime())), 0, 5);
+        }
+        return $randomTag;
     }
 
     /**
